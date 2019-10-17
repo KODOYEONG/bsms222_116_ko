@@ -17,13 +17,13 @@ d = read.delim('table.scn2a.vep_20190916.filtered.txt', sep = '' , header = T)
 
 # 2. Plot
 
-이 data의 SCN2A patients는 variant class를 기준으로 deletion, indel, insertion, SNV(single nucleotide variants), substitution의 다섯으로 분류할 수 있고, Consequence type을 기준으로 frameshift variant, inframe deletion, inframe insertion, missense variant, synonymous variant, stop gained, missense variant&splice region variant, stop lost 이렇게 여덟 분류로 나눌 수 있다. 주어진 SCN2A data를 통해 variant class와 consequence type 사이에 연관성이 있는지, 있다면 어떠한 양상을 보이는지 보고자 한다.
+In this data, we can classify SCN2A patients by 'VARIANT_CLASS'(such as 'deletion', 'indel', 'insertion', 'SNV', 'substitution'). Also we can classify them by 'Consequence'(such as 'frameshift_variant', 'inframe_deletion', 'inframe_insertion', 'missense_variant', 'missense_variant,splice_region_variant', 'stop_gained', 'stop_lost', 'synonymous_variant'). Using this SCN2A data, we would like to see if there is a connection between the 'VARIANT_CLASS' and the 'Consequence', and if so, see how it looks.
 ```{r}
 #Check the column "Consequence", "VARIANT_CLASS" by using the function 'table()'
 table(d$Consequence, d$VARIANT_CLASS)
 ```
 
-실제로 `table()`을 이용하면 SNV와 missense variant가 가장 높은 것을 확인할 수 있다. 특히 SNV의 경우가 전체의 약 98%를 차지하기에 나머지 데이터를 SNV와 같은 항목으로 정리하여 plot을 만드는 것은 비교하기에 부적절해 보인다. 그렇기에 variant class 중 SNV로 한정하여 plot을 만들기로 한다.
+Actually, when we use `table()`, we can see the 'missense_variant' in 'SNV' is the highest. In particular, since 'SNV' accounts for about about 98% of the total, it seems inappropriate to make a plot by organizing the rest into items such as 'SNV'. Therefore, we would make a plot by limiting 'SNV' among 'VARIANT_CLASS'.
 ```{r}
 #Make a data about "SNV" by using tidyverse
 D1 <- d %>% filter(grepl("SNV",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
