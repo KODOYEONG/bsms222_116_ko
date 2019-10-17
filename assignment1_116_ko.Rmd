@@ -37,7 +37,7 @@ bind_rows(D1, d_plus__) %>% complete(fill=list(n=0)) %>%
   ggplot(aes(x=reorder(Consequence, n), y = n, fill=Consequence))+
   geom_bar(stat="identity", width=.6)+
   geom_text(aes(label=n), vjust=1.6, size=3.5)+
-  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
   guides(fill=FALSE)+
   theme_minimal()+
   coord_flip()+
@@ -47,6 +47,34 @@ bind_rows(D1, d_plus__) %>% complete(fill=list(n=0)) %>%
   ggtitle("Consequence type of SCN2A patients: especially, SNV")
 ```
 
-# 3. 
+# 3. Explanation
 
-frameshift variant, inframe deletion, inframe insertion, missense variant, synonymous variant, stop gained, missense variant&splice region variant, stop lost
+Define the words we saw above first: 
+
+deletion: The point at which one or more contiguous nucleotides were excised.
+
+indel: an insertion or deletion of bases in the genome of an organism.
+
+insertion: The sequence of one or more nucleotides added between two adjacent nucleotides in the sequence.
+
+SNV: SNVs are single nucleotide positions in genomic DNA at which different sequence alternatives exist.
+
+substitution: A sequence alteration where the length of the change in the variant is the same as that of the reference.
+
+missense variant('missense' in plot) : A genetic alteration in which a single base pair substitution alters the genetic code in a way that produces an amino acid that is different from the usual amino acid at that position. Some missense variants (or mutations) will alter the function of the protein. Also called missense mutation.
+
+synonymous variant('synonymous' in plot) : A sequence variant where there is no resulting change to the encoded amino acid.
+
+frameshift variant('frameshift' in plot) :A sequence variant which causes a disruption of the translational reading frame, because the number of nucleotides inserted or deleted is not a multiple of three.
+
+inframe deletion : An inframe non synonymous variant that deletes bases from the coding sequence.
+
+inframe insertion : An inframe non synonymous variant that inserts bases into in the coding sequence.
+
+stop lost : A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript.
+
+stop gained : A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened polypeptide.
+
+splice region variant : A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron.
+
+As we can see in the plot, 'missense variant' accounts for the largest proportion in total, also it is about twice more than 'synonymous', which accounts for the second proportion.(Actually, 'missense variant' plus 'missense variant, splicing region variant' is the total 'missense variant' frequency, the value is 780.) That's because this plot was made by using the 'SNV' data. When we translate the mRNA, the third base is less important than the other two, so if there is a change at the third base of the mRNA, it might result in the same amino acid. And there is no reported data on 'inframe insertion', 'inframe deletion', 'frameshift variant'. Because 'inframe insertion' can be founded in the type 'insertion', 'inframe deletion' can be founded in 'deletion', and 'frameshift variant' can be founded in other type of variation, except 'SNV'.
