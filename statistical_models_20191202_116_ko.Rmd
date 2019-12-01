@@ -110,7 +110,7 @@ Now the second level of variability has to do with luck when batting. Regardless
 
 Statistical textbooks will write the model like this:
 
-
+$$\begin{matrix}&p&\sim N(\mu,\tau^2)\\ Y|&p&\sim N(p,\sigma^2)\end{matrix}$$
 
 Here the ~ symbol tells us the random variable on the left of the symbol follows the distribution on the right and $N(a,b^2)$ represents the normal distribution with mean $a$ and standard deviation $b$. The | is read as *conditioned on*, and it means that we are treating the random variable to the right of the symbol as known. We refer to the model as hierarchical because we need to know $p$, the first level, in order to model $Y$, the second level. In our example the first level describes randomness in assigning talent to a player and the second describes randomness in this particular player’s performance once we have fixed the talent parameter. In a Bayesian framework, the first level is called a prior distribution and the second the *sampling distribution*. The data analysis we have conducted here suggests that we set $\mu =.270$, $\tau =0.027$, and $\sigma^2=p(1-p)/N$.
 
@@ -251,7 +251,15 @@ pnorm(0, posterior_mean, posterior_se)
 
 12. Now use sapply function to change the prior variance from seq(0.05, 0.05, len = 100) and observe how the probability changes by making a plot.
 ```{r}
-seq(0.005, 0.05, len = 100)
+taus <- seq(0.005, 0.05, len = 100)
+p_calc <- function(tau) {
+  B <- sigma^2 / (sigma^2 + tau^2)
+  est <- mu + (1 - B) * (Y - mu)
+  se <- sqrt(1/(1/sigma^2+1/tau^2))
+  pnorm(0, est, se)
+}
+ps <- sapply(taus, p_calc)
+plot(taus, ps)
 ```
 
 ## 16.8 Case study: election forecasting
