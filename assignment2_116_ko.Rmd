@@ -1,0 +1,262 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(readr)
+```
+
+### Question) SCN2A mutation- VARIANT_CLASS중 SNV의 Consequence 빈도
+
+# 1. Load Data
+```{r}
+d = read.delim('table.scn2a.vep_20190916.filtered.txt', sep = '' , header = T)
+```
+
+# 2. Plot
+
+Comments
+
+radar chart를 이용하여 8각형의 도형 모서리에 각각 consequence type을 명시해주고, 각 variant class 유형별로 consequence type 내 변수들이 차지하는 비중을 서로 다른 color의 line으로 그려주면 모든 variant class의 정보도 포함할 수 있을 것이다.
+```{r}
+#head(d)
+#tail(d)
+#names(d)
+table(d$Consequence, d$VARIANT_CLASS)
+```
+
+```{r}
+#Make a data about "deletion" by using tidyverse
+D_del <- d %>% filter(grepl("deletion",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_insertion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+ddel_plus <- c("frameshift_variant","inframe_insertion","missense_variant", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+ddel_plus__ <- data.frame(Consequence = as.factor(ddel_plus), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+deletion <- bind_rows(D_del, ddel_plus__) %>% complete(fill=list(n=0)) %>%
+  ggplot(aes(x=Consequence, y = n, fill=Consequence))+
+  geom_bar(stat="identity", width=.6)+
+  geom_text(aes(label=n), vjust=0.5, size=3)+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  guides(fill=FALSE)+
+  theme_minimal()+
+  coord_flip()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+deletion
+
+bind_rows(D_del, ddel_plus__) %>% complete(fill=list(n=0)) %>% select(n)
+```
+```{r}
+#Make a data about "indel" by using tidyverse
+D_ind <- d %>% filter(grepl("indel",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "inframe_deletion","inframe_insertion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+dind_plus <- c("frameshift_variant","inframe_insertion","missense_variant", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+dind_plus__ <- data.frame(Consequence = as.factor(dind_plus), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+indel <- bind_rows(D_ind, dind_plus__) %>% complete(fill=list(n=0)) %>%
+  ggplot(aes(x=Consequence, y = n, fill=Consequence))+
+  geom_bar(stat="identity", width=.6)+
+  geom_text(aes(label=n), vjust=0.5, size=3)+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  guides(fill=FALSE)+
+  theme_minimal()+
+  coord_flip()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+indel
+```
+```{r}
+#Make a data about "insertion" by using tidyverse
+D_ins <- d %>% filter(grepl("insertion",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "inframe_deletion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+dins_plus <- c("inframe_deletion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+dins_plus__ <- data.frame(Consequence = as.factor(dins_plus), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+insertion <- bind_rows(D_ins, dins_plus__) %>% complete(fill=list(n=0)) %>%
+  ggplot(aes(x=Consequence, y = n, fill=Consequence))+
+  geom_bar(stat="identity", width=.6)+
+  geom_text(aes(label=n), vjust=0.5, size=3)+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  guides(fill=FALSE)+
+  theme_minimal()+
+  coord_flip()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+insertion
+```
+```{r}
+#Make a data about "SNV" by using tidyverse
+D1 <- d %>% filter(grepl("SNV",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_deletion","inframe_insertion" in "SNV" type, we might get the graph with only 5 bar. To compare more corretly, make a new data.frame.
+d_plus <- c("frameshift_variant","inframe_deletion","inframe_insertion")
+d_plus__ <- data.frame(Consequence = as.factor(d_plus), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+SNV <- bind_rows(D1, d_plus__) %>% complete(fill=list(n=0)) %>%
+  ggplot(aes(x=Consequence, y = n, fill=Consequence))+
+  geom_bar(stat="identity", width=.6)+
+  geom_text(aes(label=n), vjust=0.5, size=3)+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  guides(fill=FALSE)+
+  theme_minimal()+
+  coord_flip()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+SNV
+```
+
+```{r}
+#Make a data about "substitution" by using tidyverse
+D_sub <- d %>% filter(grepl("substitution",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_deletion","inframe_insertion", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+dsub_plus <- c("frameshift_variant","inframe_deletion","inframe_insertion","missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+dsub_plus__ <- data.frame(Consequence = as.factor(dsub_plus), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+substitution <- bind_rows(D_sub, dsub_plus__) %>% complete(fill=list(n=0)) %>%
+  ggplot(aes(x=Consequence, y = n, fill=Consequence))+
+  geom_bar(stat="identity", width=.6)+
+  geom_text(aes(label=n), vjust=0.5, size=3)+
+  scale_x_discrete(labels=c("missense_variant"="missense","synonymous_variant"="synonymous","stop_gained"="stop gained","missense_variant,splice_region_variant"="missense &\nsplice region","stop_lost"="stop lost","inframe_insertion"="inframe\ninsertion","inframe_deletion"="inframe\ndeletion","frameshift_variant"="frameshift"))+
+  guides(fill=FALSE)+
+  theme_minimal()+
+  coord_flip()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+substitution
+```
+
+```{r}
+#gather all the plots above using `plot_grid`
+#library(cowplot)
+bar_c <- plot_grid(deletion, indel, insertion, SNV, substitution, labels = c("deletion","indel","insertion","SNV","substitution"), label_size = 10)
+bar_c
+```
+
+```{r}
+#radar chart
+#install.packages("ggradar")
+#devtools::install_github("ricardo-bion/ggradar")
+as.data.frame(t(bind_rows(D_sub, dsub_plus__) %>% complete(fill=list(n=0))))
+
+#Make a data about "deletion" by using tidyverse
+aa <- d %>% filter(grepl("deletion",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_insertion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+bb <- c("frameshift_variant","inframe_insertion","missense_variant", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+cc <- data.frame(Consequence = as.factor(bb), n = 0)
+
+#Add new data.frame to the first data and draw a plot
+dd <- bind_rows(aa, cc) %>% complete(fill=list(n=0))
+
+dd <- dd[order(dd$Consequence), ]
+r1 <- t(dd)[2,]
+
+
+
+#indel
+
+ee <- d %>% filter(grepl("indel",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "inframe_deletion","inframe_insertion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+ff <- c("frameshift_variant","inframe_insertion","missense_variant", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+gg <- data.frame(Consequence = as.factor(ff), n = 0)
+
+hh<-bind_rows(ee, gg) %>% complete(fill=list(n=0))
+hh <- hh[order(hh$Consequence), ]
+r2 <- t(hh)[2,]
+
+#insertion
+
+ii <- d %>% filter(grepl("insertion",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "inframe_deletion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+jj <- c("inframe_deletion","missense_variat", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant")
+kk <- data.frame(Consequence = as.factor(jj), n = 0)
+
+ll<-bind_rows(ii, kk) %>% complete(fill=list(n=0))
+ll <- ll[order(ll$Consequence), ]
+r3 <- t(ll)[2,]
+
+#SNV
+mm <- d %>% filter(grepl("SNV",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_deletion","inframe_insertion" in "SNV" type, we might get the graph with only 5 bar. To compare more corretly, make a new data.frame.
+nn <- c("frameshift_variant","inframe_deletion","inframe_insertion")
+
+oo <- data.frame(Consequence = as.factor(nn), n = 0)
+pp<-bind_rows(mm, oo)
+pp <- pp[order(pp$Consequence), ]
+r4 <- t(pp)[2,]
+
+r4 <- c(0, 0, 0, 757, 13, 28, 1, 430)
+r4<-as.character(r4)
+
+#substitution
+
+qq <- d %>% filter(grepl("substitution",VARIANT_CLASS)==TRUE) %>% select(Consequence) %>% group_by(Consequence) %>% count()
+
+#Because we don't have "frameshift_variant","inframe_deletion","inframe_insertion", "missense_variant,splice_region_variant","stop_gained","stop_lost","synonymous_variant" in "deletion" type, we might get the graph with only 1 bar. To compare more corretly, make a new data.frame.
+rr <- c("frameshift\n variant","inframe\n deletion","inframe\n insertion","missense variant,\n splice region variant","stop\n gained","stop lost","synonymous variant")
+ss <- data.frame(Consequence = as.factor(rr), n = 0)
+
+
+
+tt<-bind_rows(qq, ss) %>% complete(fill=list(n=0))
+tt <- tt[order(tt$Consequence), ]
+r5 <- t(tt)[2,]
+
+name <- t(tt)[1,]
+```
+
+
+```{r}
+a<- as.data.frame(r1) %>% rename(count = r1) %>% mutate(variant_class = "deletion") %>% mutate(Consequence_type = name)
+b<- as.data.frame(r2) %>% rename(count = r2)  %>% mutate(variant_class = "indel") %>% mutate(Consequence_type = name)
+c<- as.data.frame(r3) %>% rename(count = r3) %>% mutate(variant_class = "insertion") %>% mutate(Consequence_type = name)
+d<- as.data.frame(r4) %>% rename(count = r4) %>% mutate(variant_class = "SNV") %>% mutate(Consequence_type = name)
+e<- as.data.frame(r5) %>% rename(count = r5) %>% mutate(variant_class = "substitution") %>% mutate(Consequence_type = name)
+
+vv <- rbind(a,b,c,d,e) %>% select(variant_class, Consequence_type, count)
+
+coord_radar <- function (theta = "x", start = 0, direction = 1) 
+{
+        theta <- match.arg(theta, c("x", "y"))
+        r <- if (theta == "x") 
+                "y"
+        else "x"
+        ggproto("CoordRadar", CoordPolar, theta = theta, r = r, start = start, 
+                direction = sign(direction),
+                is_linear = function(coord) TRUE)
+}
+
+rad_c <- ggplot(vv, aes(Consequence_type, count, group=variant_class, colour=variant_class, fill=variant_class)) +
+  geom_point()+
+  geom_polygon(alpha=0.3) +
+  coord_radar() +
+  theme_bw()+
+  xlab("Consequence type")
+rad_c
+```
+
+By using `plot_grid`, bind all these plots in one image.
+```{r, fig.width=10, fig.height=10}
+plot_grid(bar_c, rad_c, nrow = 2, labels = c("", "Consequence type of SCN2A patients"))
+```
+
